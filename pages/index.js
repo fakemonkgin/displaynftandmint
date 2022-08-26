@@ -1,19 +1,21 @@
-import { useAddress, useDisconnect, useMetamask } from '@thirdweb-dev/react';
+import { ConnectWallet, useAddress, useToken, useTokenBalance, useMintToken } from '@thirdweb-dev/react';
 
 export default function Home() {
   const address = useAddress();
-  const connectWithMetamask = useMetamask();
-  const disconnectWallet = useDisconnect();
+  const token = useToken("0x68DF6C1465458c6d36260F7F495Dd33eE61B097f");
+  const { data: tokenBalance } = useTokenBalance(token, address);
+  const { mutate: mintToken} = useMintToken(token);
+ 
   return (
-    <div>
-      {address ? (
-        <>
-          <button onClick={disconnectWallet}>Disconnect Wallet</button>
-          <p>Your address: {address}</p>
-        </>
-      ) : (
-        <button onClick={connectWithMetamask}>Connect with Metamask</button>
-      )}
-    </div>
+    <>
+      <ConnectWallet accentColor="#b52097"/>
+      <p>Your Address: { address } </p>
+      <p>Your Balance: { tokenBalance?.displayValue } { tokenBalance?.symbol} </p>
+
+      <button onClick={() => mintToken({
+         amount: 1,
+         to: address, 
+      })}>Mint Token</button>
+    </>
   );
 }
