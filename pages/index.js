@@ -1,17 +1,43 @@
-import { ConnectWallet, useAddress, useNFTDrop, useClaimNFT} from '@thirdweb-dev/react';
+import { ConnectWallet, ThirdwebNftMedia, useNFTs, useNFTCollection, useAddress, useMintNFT } from '@thirdweb-dev/react';
 
-export default function Home() {
+export default function NFTCollectionView() {
   const address = useAddress();
-  const nftDrop = useNFTDrop("0x5090c514a72674Fe723B34E6109c7c6Bb7f0A161");
-  const { mutate: claimNft} = useClaimNFT(nftDrop);
+  const nftCollection = useNFTCollection("0x88a6294e638431e574f2811772Fc969Be8Ae509D");
+  const {data: nfts, isLoading} = useNFTs(nftCollection);
+  const {mutate: MintNft} = useMintNFT(nftCollection);
  
   return (
     <>
-      <ConnectWallet accentColor="#b52097"/>
-      <button onClick={() => claimNft({
-         quantity: 1,
-         to: address, 
-      })}>Mint NFT</button>
+    <div>
+      {!isLoading ? (
+        <div>
+          {nfts.map((nft) => (
+            <div key={nft.metadata.id.toString()}>
+              <ThirdwebNftMedia metadata={nft.metadata} />
+              <h3>{nft.metadata.name}</h3>
+            </div>
+          ))} 
+        </div>
+        ) : (
+        <p>Loading...</p>
+      )}
+    </div>
+
+    <div>
+      {address ? (<button onClick={() => MintNft(
+        {
+          metadata: {
+            name:"My awesome NFT",
+          },
+          to: address,
+        }
+      )}>
+        MintYourNFT
+      </button>) : (<ConnectWallet accentColor="#b52097"/>)
+      }
+    </div>
     </>
   );
 }
+
+
